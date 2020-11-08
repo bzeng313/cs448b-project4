@@ -4,11 +4,21 @@ import './ExampleComponent.css';
 class ExampleComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-    }
+    this.spotifyWebApi = this.props.spotifyWebApi;
   }
   
   componentDidMount() {
+    this.spotifyWebApi.search(
+      "top 50",
+      ["playlist"],
+      {limit: 3}, function (err, response) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(response);
+      }
+    )
   }
 
   render() {

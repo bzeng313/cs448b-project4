@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.1",
     "@testing-library/user-event": "^12.2.0",
@@ -12,14 +14,15 @@
     "npm-watch": "^0.7.0",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-scripts": "4.0.0",
     "request": "^2.88.2",
+    "spotify-web-api-js": "^1.5.1",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-	  "watch": "npm-watch",
+    "watch": "npm-watch",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -48,8 +51,12 @@
       "patterns": [
         "src"
       ],
-      "extensions": "js,jsx"
+      "extensions": "js,jsx,css"
     }
   },
-  "proxy": "http://localhost:3000"
+  "proxy": "http://localhost:3000",
+  "devDependencies": {
+    "@iconify-icons/mdi": "^1.0.20",
+    "@iconify/react": "^1.1.3"
+  }
 }
