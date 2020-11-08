@@ -14,7 +14,7 @@ class ExampleComponent extends React.Component {
   render() {
     return (
       <div>
-        Add in d3 datavisualization here.
+        Add in d3 datavisualization here...
       </div>
     );
   }
