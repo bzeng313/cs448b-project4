@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SCOPE = 'user-read-private user-read-email user-read-playback-state';
-const REDIRECT_URI = PORT == 3000 ? 'http://localhost:3000/callback' : 'https://cs448b-project4-backend.herokuapp.com/callback'
+const REDIRECT_URI = PORT == 3000 ? 'http://localhost:3000/callback' : 'https://cs448b-project4.herokuapp.com//callback'
 
 ///////////////////////////////////////////////vvvCOPIED CODEvvv///////////////////////////////////////////////////////
 /**
