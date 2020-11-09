@@ -41,7 +41,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <NavBar logged_in={this.logged_in}/>
-        <ExampleComponent spotifyWebApi={this.spotifyWebApi}/>
+        <ExampleComponent spotifyWebApi={this.spotifyWebApi} width={1000} height={1000}/>
       </div>
     );
   }
