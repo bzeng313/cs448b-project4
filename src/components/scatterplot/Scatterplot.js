@@ -29,13 +29,13 @@ class Scatterplot extends React.Component {
               console.log(err);
               return;
             }
-            let trackIds = response.items.map( (item) => item.track.id );
 
-            // let idToPopularity = {};
-            // for (let item in response.items) {
-            //   idToPopularity[item.track.id] = item.track.popularity;
-            // }
-            // console.log("pop:" , idToPopularity);
+            let idToPopularity = {};
+            for (var i in response.items) {
+              let track = response.items[i].track;
+              idToPopularity[track.id] = track.popularity;
+            }
+            let trackIds = Object.keys(idToPopularity);
 
             this.spotifyWebApi.getAudioFeaturesForTracks(
               trackIds,
@@ -45,7 +45,7 @@ class Scatterplot extends React.Component {
                   return;
                 }
                 console.log(response);
-                let acousticnessAndDanceability = 
+                let audioFeatures = 
                   response.audio_features
                     .map(
                       (audio_feature) => {
@@ -59,11 +59,11 @@ class Scatterplot extends React.Component {
                           // speechiness: audio_feature.speechiness,
                           // valence: audio_feature.valence,
                           // tempo: audio_feature.tempo,
-                          // popularity: idToPopularity[audio_feature.id],
+                          popularity: idToPopularity[audio_feature.id],
                         }
                       }
                     );
-                console.log(acousticnessAndDanceability);
+                console.log(audioFeatures);
                 
                 // REFERENCE: https://www.d3-graph-gallery.com/graph/scatter_basic.html
                 // set the dimensions and margins of the graph
@@ -80,7 +80,7 @@ class Scatterplot extends React.Component {
                 .attr("transform",
                       "translate(" + margin.left + "," + margin.top + ")");
 
-                this.drawScatterplot(svg, width, height, acousticnessAndDanceability);
+                this.drawScatterplot(svg, width, height, audioFeatures);
                 this.drawScatterplotLabels(svg, width, height, margin);
               }
             )
@@ -91,7 +91,7 @@ class Scatterplot extends React.Component {
   }
   
   // REFERENCE: https://www.d3-graph-gallery.com/graph/scatter_basic.html
-  drawScatterplot(svg, width, height, acousticnessAndDanceability) {
+  drawScatterplot(svg, width, height, audioFeatures) {
     // Add X axis
     var x = d3.scaleLinear()
     .domain([0, 1])
@@ -102,7 +102,7 @@ class Scatterplot extends React.Component {
 
     // Add Y axis
     var y = d3.scaleLinear()
-    .domain([0, 1])
+    .domain([50, 100])
     .range([ height, 0]);
     svg.append("g")
     .call(d3.axisLeft(y));
@@ -110,18 +110,18 @@ class Scatterplot extends React.Component {
     // Add dots
     svg.append('g')
     .selectAll("dot")
-    .data(acousticnessAndDanceability)
+    .data(audioFeatures)
     .enter()
     .append("circle")
       .attr("cx", function (d) { return x(d.acousticness); } )
-      .attr("cy", function (d) { return y(d.danceability); } )
+      .attr("cy", function (d) { return y(d.popularity); } )
       .attr("r", 5)
       .style("fill", "#69b3a2")
     .on('mouseover', function (event, d) {
       svg.append('text')
         .attr('class', 'ptLabel')
         .attr('x', x(d.acousticness))
-        .attr('y', y(d.danceability))
+        .attr('y', y(d.popularity))
         .text('test'); 
       })
     .on('mouseout', function(event, d) {
@@ -153,7 +153,7 @@ class Scatterplot extends React.Component {
     .attr("dy", "1em")
     .style("text-anchor", "middle")
     .style("font-size", 14)
-    .text("y axis"); 
+    .text("popularity"); 
   }
 
   render() {
