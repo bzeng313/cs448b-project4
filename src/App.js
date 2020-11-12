@@ -1,5 +1,6 @@
 import React from 'react'
 import ExampleComponent from './components/exampleComponent/ExampleComponent.js';
+import Scatterplot from './components/scatterplot/Scatterplot.js';
 import NavBar from './components/navBar/NavBar.js'
 import SpotifyWebApi from 'spotify-web-api-js';
 import './App.css';
@@ -41,7 +42,8 @@ class App extends React.Component {
     return (
       <div className="App">
         <NavBar logged_in={this.logged_in}/>
-        <ExampleComponent spotifyWebApi={this.spotifyWebApi} width={1000} height={1000}/>
+        {/* <ExampleComponent spotifyWebApi={this.spotifyWebApi} width={1000} height={1000}/> */}
+        <Scatterplot spotifyWebApi={this.spotifyWebApi} width={500} height={500}/>
       </div>
     );
   }
