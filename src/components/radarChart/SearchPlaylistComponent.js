@@ -51,7 +51,6 @@ class SearchPlaylistComponent extends React.Component {
                 return;
             }
 
-            console.log(response.items)
             let trackIds = response.items.filter((item) => item.track !== null).map( (item) => item.track.id );
             
             this.spotifyWebApi.getAudioFeaturesForTracks(
