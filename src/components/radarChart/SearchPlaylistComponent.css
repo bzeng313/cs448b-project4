@@ -1,0 +1,20 @@
+/* https://css-tricks.com/custom-scrollbars-in-webkit/ */
+
+div.scroll::-webkit-scrollbar {
+    width: 12px;
+}
+ 
+div.scroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    border-radius: 10px;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+
+div.scroll { 
+    height: 110px; 
+    overflow-y: scroll; 
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import RadarChart from './radarChart.js'
 import SearchPlaylistComponent from './SearchPlaylistComponent.js'
+import './RadarChartComponent.css'
 
 class RadarChartComponent extends React.Component {
   constructor(props) {
@@ -49,9 +50,14 @@ class RadarChartComponent extends React.Component {
         <div>
             <div id='radarChart'>
             </div>
-            <SearchPlaylistComponent spotifyWebApi={this.spotifyWebApi} pushSelectedSearchPlaylistData={(data) => this.setState({selectedSearchPlaylistData1: data})}/>
-            <SearchPlaylistComponent spotifyWebApi={this.spotifyWebApi} pushSelectedSearchPlaylistData={(data) => this.setState({selectedSearchPlaylistData2: data})}/>
-
+            <div class='row' style={{backgroundColor: '#F8F8F8'}}>
+                <div class="col-sm-6">
+                    <SearchPlaylistComponent spotifyWebApi={this.spotifyWebApi} pushSelectedSearchPlaylistData={(data) => this.setState({selectedSearchPlaylistData1: data})}/>
+                </div>
+                <div class="col-sm-6">
+                    <SearchPlaylistComponent spotifyWebApi={this.spotifyWebApi} pushSelectedSearchPlaylistData={(data) => this.setState({selectedSearchPlaylistData2: data})}/>
+                </div>
+            </div>
         </div>
     );
   }

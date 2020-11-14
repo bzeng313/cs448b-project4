@@ -1,5 +1,6 @@
 import React from 'react';
 import imageNotFound from './image-not-found.png'
+import './SearchPlaylistComponent.css'
 
 class SearchPlaylistComponent extends React.Component {
   constructor(props) {
@@ -9,7 +10,8 @@ class SearchPlaylistComponent extends React.Component {
 
     this.state = {
         playlistsFromSpotify: [],
-        searchFromSpotifyQuery: ''
+        searchFromSpotifyQuery: '',
+        selectedPlaylist: null
     };
 
     this.handleSearchFromSpotifyQueryChange = this.handleSearchFromSpotifyQueryChange.bind(this);
@@ -49,7 +51,8 @@ class SearchPlaylistComponent extends React.Component {
                 return;
             }
 
-            let trackIds = response.items.map( (item) => item.track.id );
+            console.log(response.items)
+            let trackIds = response.items.filter((item) => item.track !== null).map( (item) => item.track.id );
             
             this.spotifyWebApi.getAudioFeaturesForTracks(
                 trackIds,
@@ -89,25 +92,46 @@ class SearchPlaylistComponent extends React.Component {
     )
   }
 
+  renderSelection() {
+    if (!this.state.selectedPlaylist) return (<div style={{marginBottom: "5px", marginTop: "10px"}} />);
+
+    return (
+        <div style={{marginBottom: "5px", marginTop: "10px"}}>
+            {"Selected Playlist:  "}
+            <span><img width='32' height='32' src={this.state.selectedPlaylist.images.length === 0 ? imageNotFound : this.state.selectedPlaylist.images[0].url} /><span>{"  " + this.state.selectedPlaylist.name}</span></span>
+        </div>
+    );
+  }
+
   renderSearchResultsPlaylists() {
+      if (this.state.playlistsFromSpotify.length === 0) {
+          return 'No matches for your search';
+      }
+
       return this.state.playlistsFromSpotify.map((playlist) => {
         return (
             <div>
-                <button type='button' onClick={() => this.renderRadarChartForPlaylist(playlist) } >
-                    <span><img width='32' height='32' src={playlist.images.length === 0 ? imageNotFound : playlist.images[0].url} /><span>{playlist.name}</span></span>
+                <button style={{width:'300px', textAlign:'left'}} type='button' onClick={() => { this.renderRadarChartForPlaylist(playlist); this.setState({ selectedPlaylist: playlist }); } } >
+                    <span><img width='32' height='32' src={playlist.images.length === 0 ? imageNotFound : playlist.images[0].url} /><span>{"  " + playlist.name}</span></span>
                 </button>
             </div>
         );
       });
+
   }
 
   render() {
     return (
         <div>
-            <form onSubmit={(event) => event.preventDefault()}>
-                <input placeholder='Search for playlist' type='text' value={this.state.searchFromSpotifyQuery} onChange={this.handleSearchFromSpotifySubmission} />
-            </form>
-            {this.renderSearchResultsPlaylists()}
+            {this.renderSelection()}
+            <div style={{marginBottom: "10px", marginTop: "5px"}}> 
+                <form onSubmit={(event) => event.preventDefault()}>
+                    <input placeholder='Search for playlist' type='text' value={this.state.searchFromSpotifyQuery} onChange={this.handleSearchFromSpotifySubmission} />
+                </form>
+            </div>
+            <div class='scroll'>
+                {this.renderSearchResultsPlaylists()}
+            </div>
         </div>
     );
   }
