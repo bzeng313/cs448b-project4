@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////////////
 import * as d3 from 'd3';
 
-function RadarChart(id, data, options) {
+function RadarChart(id, data, playlistNames, options) {
 	var cfg = {
 	 w: 100,				//Width of the circle
 	 h: 100,				//Height of the circle
@@ -19,7 +19,7 @@ function RadarChart(id, data, options) {
 	 dotRadius: 4, 			//The size of the colored circles of each blog
 	 opacityCircles: 0.1, 	//The opacity of the circles of each blob
 	 strokeWidth: 2, 		//The width of the stroke around each blob
-	 color: d3.scaleOrdinal(d3.schemeCategory10) //Color function
+	 color: function(i) { let colors = ["blue", "orange"]; return colors[i]; } //Color function
 	};
 	
 	//Put all of the options into a variable called cfg
@@ -35,7 +35,6 @@ function RadarChart(id, data, options) {
 	var allAxis = (data[0].map(function(i, j){return i.axis})),	//Names of each axis
 		total = allAxis.length,					//The number of different axes
 		radius = Math.min(cfg.w/2, cfg.h/2), 	//Radius of the outermost circle
-		Format = d3.format('%'),			 	//Percentage formatting
 		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
 	
 	//Scale for the radius
@@ -183,13 +182,13 @@ function RadarChart(id, data, options) {
 	
 	//Append the circles
 	blobWrapper.selectAll(".radarCircle")
-		.data(function(d,i) { return d; })
+		.data(function(d,i) { return d.map(feature => {feature.index = i; return feature}); })
 		.enter().append("circle")
 		.attr("class", "radarCircle")
 		.attr("r", cfg.dotRadius)
 		.attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
 		.attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
-		.style("fill", function(d,i,j) { return cfg.color(j); })
+		.style("fill", function(d,i,j) { return cfg.color(d.index); })
 		.style("fill-opacity", 0.8);
 
 	/////////////////////////////////////////////////////////
@@ -201,7 +200,6 @@ function RadarChart(id, data, options) {
 		.data(data)
 		.enter().append("g")
 		.attr("class", "radarCircleWrapper");
-		
 	//Append a set of invisible circles on top for the mouseover pop-up
 	blobCircleWrapper.selectAll(".radarInvisibleCircle")
 		.data(function(d,i) { return d; })
@@ -264,7 +262,25 @@ function RadarChart(id, data, options) {
 		}
 	  });
 	}//wrap	
-	
+
+
+	if (data.length > 0 && data[0].length !== 0) {
+		let legend = svg.append("g").attr("margin-bottom", 50)
+		for (let i = 0; i < data.length; ++i) {
+			legend.append("circle")
+				.attr("r","0.4em")
+				.attr("cx", 50)
+				.attr("cy", 20 * (i + 1))
+				.style("fill", cfg.color(i))
+			legend.append("text")
+				.text(playlistNames[i])
+				.attr("x", 60)
+				.attr("y", 20 * (i + 1))
+				.attr("alignment-baseline","middle");
+		}
+	}
+		
+
 }//RadarChart
 
 export default RadarChart;

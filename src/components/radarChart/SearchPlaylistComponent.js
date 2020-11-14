@@ -85,7 +85,7 @@ class SearchPlaylistComponent extends React.Component {
                     for (const feature in averagePlaylistData) {
                         averagePlaylistDataForRadarGraph.push({axis: feature, value: averagePlaylistData[feature] /= totalTracks});
                     }
-                    this.props.pushSelectedSearchPlaylistData(averagePlaylistDataForRadarGraph);
+                    this.props.pushSelectedSearchPlaylistData({name: playlist.name, value: averagePlaylistDataForRadarGraph});
                 }
             )
         }        

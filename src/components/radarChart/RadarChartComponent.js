@@ -25,24 +25,28 @@ class RadarChartComponent extends React.Component {
     height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
     var data = [];
+    var playlistNames = [];
     if (this.state.selectedSearchPlaylistData1) {
-        data.push(this.state.selectedSearchPlaylistData1);
+        playlistNames.push(this.state.selectedSearchPlaylistData1.name);
+        data.push(this.state.selectedSearchPlaylistData1.value);
     }
     if (this.state.selectedSearchPlaylistData2) {
-        data.push(this.state.selectedSearchPlaylistData2);
+        playlistNames.push(this.state.selectedSearchPlaylistData2.name);
+        data.push(this.state.selectedSearchPlaylistData2.value);
     }
     if (data.length == 0) {
         data = [[]]
     }
 
     var radarChartOptions = {
-        w: 500,
-        h: 500,
+        w: 400,
+        h: 400,
         margin: margin,
         maxValue: 1,
         levels: 10
     };
-    RadarChart("#radarChart", data, radarChartOptions);
+
+    RadarChart("#radarChart", data, playlistNames, radarChartOptions);
   }
 
   render() {
