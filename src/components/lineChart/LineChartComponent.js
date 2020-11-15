@@ -40,6 +40,14 @@ export default function LineChartComponent({
           .style("text-anchor", "middle")
           .style("font-size", 11)
           .text('valence');
+          
+        svg.append("text")
+          .attr('id', 'loading')
+          .attr("transform", `translate(${width / 2}, ${height + 65})`)
+          .style("text-anchor", "middle")
+          .style("font-size", 11)
+          .text("Loading...")   
+          .attr('opacity', 1);
 
         let dimensions = ["valence", "danceability", "acousticness", "energy", "instrumentalness", "liveness", "speechiness"]
         d3.select("#selectButton")
@@ -86,6 +94,7 @@ export default function LineChartComponent({
                           })
                           .style('stroke-width', 4)
                           .style('fill', 'none')
+                d3.selectAll('#loading').attr('opacity', 0)
         // A function that update the chart
         function update(selectedGroup) {
             calculateTop50Data(spotifyWebApi, selectedGroup).then((results) => {                
@@ -100,6 +109,9 @@ export default function LineChartComponent({
                           .y(d => y(d['avg']))
                 )
                 .attr("stroke", function(d){ return myColor(selectedGroup) })
+
+                d3.selectAll('#loading').attr('opacity', 0)
+                // .attr('stroke-opacity', 1);
             })
             
           // Give these new data to update line
@@ -107,8 +119,10 @@ export default function LineChartComponent({
         }
         // When the button is changed, run the updateChart function
         d3.select("#selectButton").on("change", function(d) {
+            d3.selectAll('#loading').attr('opacity', '1');
             // recover the option that has been chosen
             var selectedOption = d3.select(this).property("value")
+            // line.attr('stroke-opacity', 0);
             // run the updateChart function with this selected option
             update(selectedOption)
         })
