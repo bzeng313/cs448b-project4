@@ -1,5 +1,6 @@
 import React from 'react'
 import NavBar from './components/navBar/NavBar.js'
+import BoxplotComponent from './components/boxplot/BoxplotComponent.js'
 import RadarChartComponent from './components/radarChart/RadarChartComponent.js'
 import SpotifyWebApi from 'spotify-web-api-js';
 import './App.css';
@@ -41,6 +42,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <NavBar logged_in={this.logged_in}/>
+        <BoxplotComponent spotifyWebApi={this.spotifyWebApi} />
         <RadarChartComponent spotifyWebApi={this.spotifyWebApi} />
       </div>
     );
