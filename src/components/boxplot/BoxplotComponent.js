@@ -5,7 +5,6 @@ import './BoxplotComponent.css';
 
 const COMPONENT_WIDTH = 700;
 const COMPONENT_HEIGHT = 500;
-const DEFAULT_FEATURE = "acousticness";
 
 export default function BoxplotComponent({
   spotifyWebApi,
@@ -19,20 +18,20 @@ export default function BoxplotComponent({
   ],
 }) {
   const svgRef = useRef(null);
-  const [selectedFeature, setSelectedFeature] = useState(DEFAULT_FEATURE)
+  const [selectedFeature, setSelectedFeature] = useState(audioFeatures[0])
   const [plotSvg, setPlotSvg] = useState(null)
 
   // REFERENCE: https://www.d3-graph-gallery.com/graph/line_select.html used to create dropdown menu
   useEffect(() => {
-    d3.select("#selectButton")
+    d3.select("#dropdown")
       .selectAll('myOptions')
       .data(audioFeatures)
       .enter()
       .append('option')
-      .text(function (d) { return d; }) // text showed in the menu
-      .attr("value", function (d) { return d; }) // corresponding value returned by the button
+      .text(function (d) { return d; })
+      .attr("value", function (d) { return d; })
 
-    d3.select("#selectButton").on("change", function (d) {
+    d3.select("#dropdown").on("change", function (d) {
       let selected = d3.select(this).property("value")
       setSelectedFeature(selected)
       clearBoxplots(svgRef)
@@ -47,7 +46,7 @@ export default function BoxplotComponent({
         "translate(" + margin.left + "," + margin.top + ")")
 
     setPlotSvg(svg)
-    drawLabels(svg, width, margin, height);
+    drawAxisAndLabels(svg, width, margin, height, countries);
   }, [])
 
   useEffect(() => {
@@ -75,13 +74,13 @@ export default function BoxplotComponent({
   return (
     <div>
       <svg ref={svgRef} width={COMPONENT_WIDTH} height={COMPONENT_HEIGHT} />
-      <select id="selectButton"></select>
+      <select id="dropdown"></select>
     </div>
   );
 }
 
 // REFERENCE: https://observablehq.com/@stanfordvis/lets-make-a-scatterplot
-function drawLabels(svg, width, margin, height) {
+function drawAxisAndLabels(svg, width, margin, height, countries) {
   // Add title
   svg.append("text")
     .attr("transform", `translate(${width / 2}, ${-margin.top / 2})`)
@@ -95,8 +94,25 @@ function drawLabels(svg, width, margin, height) {
     .style("text-anchor", "middle")
     .style("font-size", 11)
     .text("Top 50 Most Played Tracks by Country");
+
+  // Add X axis
+  let x = d3.scaleBand()
+    .range([0, width])
+    .domain(countries)
+    .paddingInner(1)
+    .paddingOuter(.5)
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+
+  // Add Y axis
+  let y = d3.scaleLinear()
+    .domain([-1.0, 2.0])
+    .range([height, 0])
+  svg.append("g").call(d3.axisLeft(y))
 }
 
+// REFERENCE: https://www.d3-graph-gallery.com/graph/boxplot_show_individual_points.html
 function drawBoxplots(svg, flatData, width, countries, height, margin, selectedFeature) {
   // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
   let sumstat = nest()
@@ -112,21 +128,17 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
     })
     .entries(flatData)
 
-  // Show the X scale
+  // Create X scale
   let x = d3.scaleBand()
     .range([0, width])
     .domain(countries)
     .paddingInner(1)
     .paddingOuter(.5)
-  svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x))
 
-  // Show the Y scale
+  // Create Y scale
   let y = d3.scaleLinear()
     .domain([-1.0, 2.0])
     .range([height, 0])
-  svg.append("g").call(d3.axisLeft(y))
 
   // Add Y axis label
   svg.append("text")
@@ -211,12 +223,11 @@ async function getTop50Tracks(country, spotifyWebApi) {
     ["playlist"], //filter results to only playlists
     { limit: 1 })
 
-  const playlistTracks = await spotifyWebApi.getPlaylistTracks(
+  const playlist = await spotifyWebApi.getPlaylistTracks(
     searchResults.playlists.items[0].id,
   );
 
-  let trackIds = playlistTracks.items.map((item) => item.track.id);
-
+  let trackIds = playlist.items.map((item) => item.track.id);
   const audioFeatures = await spotifyWebApi.getAudioFeaturesForTracks(
     trackIds,
   );
