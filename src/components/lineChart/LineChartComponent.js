@@ -32,7 +32,7 @@ export default function LineChartComponent({
 
         // y axis label
         svg.append("text")
-          .attr("id", "y-axis-label")
+          .attr("id", "y-axis-label-andrew")
           .attr("transform", "rotate(-90)")
           .attr("y", 0 - margin.left)
           .attr("x", 0 - (height / 2))
@@ -89,7 +89,7 @@ export default function LineChartComponent({
         // A function that update the chart
         function update(selectedGroup) {
             calculateTop50Data(spotifyWebApi, selectedGroup).then((results) => {                
-                d3.selectAll('#y-axis-label').text(selectedGroup);
+                d3.selectAll('#y-axis-label-andrew').text(selectedGroup);
 
                 line
                 .datum(results)
