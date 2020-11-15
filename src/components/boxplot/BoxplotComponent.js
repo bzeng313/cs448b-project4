@@ -15,11 +15,12 @@ export default function BoxplotComponent({
   countries = ["United States", "France", "Mexico", "Japan", "South Korea"],
   audioFeatures = [
     "acousticness", "danceability", "energy", "instrumentalness",
-    "liveness","speechiness","valence"
+    "liveness", "speechiness", "valence"
   ],
 }) {
   const svgRef = useRef(null);
   const [selectedFeature, setSelectedFeature] = useState(DEFAULT_FEATURE)
+  const [plotSvg, setPlotSvg] = useState(null)
 
   // REFERENCE: https://www.d3-graph-gallery.com/graph/line_select.html used to create dropdown menu
   useEffect(() => {
@@ -34,13 +35,9 @@ export default function BoxplotComponent({
     d3.select("#selectButton").on("change", function (d) {
       let selected = d3.select(this).property("value")
       setSelectedFeature(selected)
+      clearBoxplots(svgRef)
     })
-  }, [])
 
-  useEffect(() => {
-    d3.select(svgRef.current).select("svg").remove()
-
-    // Append the svg object to the body of the page
     let svg = d3.select(svgRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -48,6 +45,14 @@ export default function BoxplotComponent({
       .append("g")
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")")
+
+    setPlotSvg(svg)
+    drawLabels(svg, width, margin, height);
+  }, [])
+
+  useEffect(() => {
+    let svg = plotSvg;
+    if (!svg) return;
 
     Promise.all(countries.map((country) => {
       return getTop50Tracks(country, spotifyWebApi)
@@ -60,13 +65,12 @@ export default function BoxplotComponent({
           }))
         );
 
-        drawLabels(svg, width, margin, height, selectedFeature);
-        drawBoxplots(svg, flatData, width, countries, height);
+        drawBoxplots(svg, flatData, width, countries, height, margin, selectedFeature);
       }
     ).catch((e) => {
       console.error(e);
     })
-  }, [spotifyWebApi, countries, height, margin, width, selectedFeature])
+  }, [spotifyWebApi, countries, height, margin, width, selectedFeature, plotSvg])
 
   return (
     <div>
@@ -77,7 +81,7 @@ export default function BoxplotComponent({
 }
 
 // REFERENCE: https://observablehq.com/@stanfordvis/lets-make-a-scatterplot
-function drawLabels(svg, width, margin, height, selectedFeature) {
+function drawLabels(svg, width, margin, height) {
   // Add title
   svg.append("text")
     .attr("transform", `translate(${width / 2}, ${-margin.top / 2})`)
@@ -91,19 +95,9 @@ function drawLabels(svg, width, margin, height, selectedFeature) {
     .style("text-anchor", "middle")
     .style("font-size", 11)
     .text("Top 50 Most Played Tracks by Country");
-
-  // Add Y axis label
-  svg.append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left)
-    .attr("x", 0 - (height / 2))
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .style("font-size", 11)
-    .text(selectedFeature);
 }
 
-function drawBoxplots(svg, flatData, width, countries, height) {
+function drawBoxplots(svg, flatData, width, countries, height, margin, selectedFeature) {
   // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
   let sumstat = nest()
     .key(function (d) { return d.country; })
@@ -119,7 +113,7 @@ function drawBoxplots(svg, flatData, width, countries, height) {
     .entries(flatData)
 
   // Show the X scale
-  var x = d3.scaleBand()
+  let x = d3.scaleBand()
     .range([0, width])
     .domain(countries)
     .paddingInner(1)
@@ -129,10 +123,21 @@ function drawBoxplots(svg, flatData, width, countries, height) {
     .call(d3.axisBottom(x))
 
   // Show the Y scale
-  var y = d3.scaleLinear()
+  let y = d3.scaleLinear()
     .domain([-1.0, 2.0])
     .range([height, 0])
   svg.append("g").call(d3.axisLeft(y))
+
+  // Add Y axis label
+  svg.append("text")
+    .attr("id", "y-axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", 0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-size", 11)
+    .text(selectedFeature);
 
   // Show the main vertical line
   svg
@@ -140,6 +145,7 @@ function drawBoxplots(svg, flatData, width, countries, height) {
     .data(sumstat)
     .enter()
     .append("line")
+    .attr('class', 'vertLines')
     .attr("x1", function (d) { return (x(d.key)) })
     .attr("x2", function (d) { return (x(d.key)) })
     .attr("y1", function (d) { return (y(d.value.min)) })
@@ -154,6 +160,7 @@ function drawBoxplots(svg, flatData, width, countries, height) {
     .data(sumstat)
     .enter()
     .append("rect")
+    .attr('class', 'boxes')
     .attr("x", function (d) { return (x(d.key) - boxWidth / 2) })
     .attr("y", function (d) { return (y(d.value.q3)) })
     .attr("height", function (d) { return (y(d.value.q1) - y(d.value.q3)) })
@@ -167,6 +174,7 @@ function drawBoxplots(svg, flatData, width, countries, height) {
     .data(sumstat)
     .enter()
     .append("line")
+    .attr('class', 'medianLines')
     .attr("x1", function (d) { return (x(d.key) - boxWidth / 2) })
     .attr("x2", function (d) { return (x(d.key) + boxWidth / 2) })
     .attr("y1", function (d) { return (y(d.value.median)) })
@@ -181,11 +189,20 @@ function drawBoxplots(svg, flatData, width, countries, height) {
     .data(flatData)
     .enter()
     .append("circle")
+    .attr('class', 'indPoints')
     .attr("cx", function (d) { return (x(d.country) - jitterWidth / 2 + Math.random() * jitterWidth) })
     .attr("cy", function (d) { return (y(d.feature)) })
     .attr("r", 4)
     .style("fill", "white")
     .attr("stroke", "black")
+}
+
+function clearBoxplots(svgRef) {
+  d3.select(svgRef.current).select("svg").selectAll(".vertLines").remove()
+  d3.select(svgRef.current).select("svg").selectAll(".boxes").remove()
+  d3.select(svgRef.current).select("svg").selectAll(".medianLines").remove()
+  d3.select(svgRef.current).select("svg").selectAll(".indPoints").remove()
+  d3.select(svgRef.current).select("svg").select("#y-axis-label").remove()
 }
 
 async function getTop50Tracks(country, spotifyWebApi) {
