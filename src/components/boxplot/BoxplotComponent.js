@@ -3,12 +3,13 @@ import * as d3 from "d3";
 import { nest } from 'd3-collection';
 import './BoxplotComponent.css';
 
-const COMPONENT_WIDTH = 700;
-const COMPONENT_HEIGHT = 500;
+const COMPONENT_WIDTH = 700
+const COMPONENT_HEIGHT = 500
+const JITTER_WIDTH = 50
 
 export default function BoxplotComponent({
   spotifyWebApi,
-  margin = { top: 50, right: 10, bottom: 60, left: 50 },
+  margin = { top: 50, right: 100, bottom: 70, left: 50 },
   width = COMPONENT_WIDTH - margin.left - margin.right,
   height = COMPONENT_HEIGHT - margin.top - margin.bottom,
   countries = ["United States", "France", "Mexico", "Japan", "South Korea"],
@@ -60,7 +61,9 @@ export default function BoxplotComponent({
         let flatData = data.flatMap(
           (playlists) => playlists.map((track) => ({
             feature: track[selectedFeature],
-            country: track.country
+            country: track.country,
+            name: track.name,
+            jitter: -JITTER_WIDTH / 2 + Math.random() * JITTER_WIDTH
           }))
         );
 
@@ -86,7 +89,7 @@ function drawAxisAndLabels(svg, width, margin, height, countries) {
     .attr("transform", `translate(${width / 2}, ${-margin.top / 2})`)
     .style("text-anchor", "middle")
     .style("font-size", 14)
-    .text("Boxplot");
+    .text("Audio Features of Top 50 Most Played Tracks");
 
   // Add X label
   svg.append("text")
@@ -107,12 +110,13 @@ function drawAxisAndLabels(svg, width, margin, height, countries) {
 
   // Add Y axis
   let y = d3.scaleLinear()
-    .domain([-1.0, 2.0])
+    .domain([0.0, 1.0])
     .range([height, 0])
   svg.append("g").call(d3.axisLeft(y))
 }
 
 // REFERENCE: https://www.d3-graph-gallery.com/graph/boxplot_show_individual_points.html
+// REFERENCE: https://observablehq.com/@stanfordvis/lets-make-a-scatterplot for hover-over
 function drawBoxplots(svg, flatData, width, countries, height, margin, selectedFeature) {
   // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
   let sumstat = nest()
@@ -122,8 +126,8 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
       let median = d3.quantile(d.map(function (t) { return t.feature; }).sort(d3.ascending), .5)
       let q3 = d3.quantile(d.map(function (t) { return t.feature; }).sort(d3.ascending), .75)
       let interQuantileRange = q3 - q1
-      let min = q1 - 1.5 * interQuantileRange
-      let max = q3 + 1.5 * interQuantileRange
+      let min = Math.max(q1 - 1.5 * interQuantileRange, 0.0)
+      let max = Math.min(q3 + 1.5 * interQuantileRange, 1.0)
       return ({ q1: q1, median: median, q3: q3, interQuantileRange: interQuantileRange, min: min, max: max })
     })
     .entries(flatData)
@@ -137,7 +141,7 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
 
   // Create Y scale
   let y = d3.scaleLinear()
-    .domain([-1.0, 2.0])
+    .domain([0.0, 1.0])
     .range([height, 0])
 
   // Add Y axis label
@@ -166,7 +170,7 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
     .style("width", 40)
 
   // rectangle for the main box
-  var boxWidth = 100
+  let boxWidth = 100
   svg
     .selectAll("boxes")
     .data(sumstat)
@@ -195,18 +199,29 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
     .style("width", 80)
 
   // Add individual points with jitter
-  var jitterWidth = 50
+  var labelOffset = 5
   svg
     .selectAll("indPoints")
     .data(flatData)
     .enter()
     .append("circle")
     .attr('class', 'indPoints')
-    .attr("cx", function (d) { return (x(d.country) - jitterWidth / 2 + Math.random() * jitterWidth) })
+    .attr("cx", function (d) { return (x(d.country) + d.jitter) })
     .attr("cy", function (d) { return (y(d.feature)) })
     .attr("r", 4)
     .style("fill", "white")
     .attr("stroke", "black")
+    .on('mouseover', function (event, d) {
+       svg.append('text')
+         .attr('class', 'ptLabel')
+         .attr('x', x(d.country) + d.jitter + labelOffset)
+         .attr('y', y(d.feature))
+         .style("font-size", 11)
+         .text(d.name); 
+       })
+     .on('mouseout', function(event, d) {
+        svg.selectAll('.ptLabel').remove()
+      });
 }
 
 function clearBoxplots(svgRef) {
@@ -227,7 +242,14 @@ async function getTop50Tracks(country, spotifyWebApi) {
     searchResults.playlists.items[0].id,
   );
 
-  let trackIds = playlist.items.map((item) => item.track.id);
+  let idToName = {}
+  for (var i in playlist.items) {
+    let id = playlist.items[i].track.id
+    let name = playlist.items[i].track.name
+    idToName[id] = name
+  }
+  
+  let trackIds = Object.keys(idToName);
   const audioFeatures = await spotifyWebApi.getAudioFeaturesForTracks(
     trackIds,
   );
@@ -236,6 +258,7 @@ async function getTop50Tracks(country, spotifyWebApi) {
     (audio_feature) => {
       return {
         ...audio_feature,
+        name: idToName[audio_feature.id],
         country
       }
     }
