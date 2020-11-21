@@ -107,7 +107,7 @@ function drawAxisAndLabels(svg, width, margin, height, countries) {
 
   // Add Y axis
   let y = d3.scaleLinear()
-    .domain([-1.0, 2.0])
+    .domain([0.0, 1.0])
     .range([height, 0])
   svg.append("g").call(d3.axisLeft(y))
 }
@@ -122,8 +122,8 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
       let median = d3.quantile(d.map(function (t) { return t.feature; }).sort(d3.ascending), .5)
       let q3 = d3.quantile(d.map(function (t) { return t.feature; }).sort(d3.ascending), .75)
       let interQuantileRange = q3 - q1
-      let min = q1 - 1.5 * interQuantileRange
-      let max = q3 + 1.5 * interQuantileRange
+      let min = Math.max(q1 - 1.5 * interQuantileRange, 0.0)
+      let max = Math.min(q3 + 1.5 * interQuantileRange, 1.0)
       return ({ q1: q1, median: median, q3: q3, interQuantileRange: interQuantileRange, min: min, max: max })
     })
     .entries(flatData)
@@ -137,7 +137,7 @@ function drawBoxplots(svg, flatData, width, countries, height, margin, selectedF
 
   // Create Y scale
   let y = d3.scaleLinear()
-    .domain([-1.0, 2.0])
+    .domain([0.0, 1.0])
     .range([height, 0])
 
   // Add Y axis label
