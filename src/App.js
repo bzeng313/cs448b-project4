@@ -93,7 +93,7 @@ class App extends React.Component {
         </p>
         <BoxplotComponent spotifyWebApi={this.spotifyWebApi} />
         <p> Flipping through the different audio features, we noted some interesting differences. Japan 
-          and Korea do not seem to appreciate “speechy” music: songs with a preponderance of spoken words. 
+          and South Korea do not seem to appreciate “speechy” music: songs with a preponderance of spoken words. 
           Does that make it tough for a budding rap artist to make their big break there? Try it out and let 
           us know! South Korea seems to have the most energetic and lively music scene, while France has the 
           most danceable (based on median values). Mexico seems to prefer major key (high valence) music 
