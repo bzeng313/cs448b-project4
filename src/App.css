@@ -36,6 +36,14 @@ p {
   text-align: justify;
 }
 
+blockquote {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 25%;
+  margin-right:25%;
+  text-align: justify;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
