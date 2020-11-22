@@ -44,11 +44,12 @@ class App extends React.Component {
       <div className="App">
         <NavBar logged_in={this.logged_in}/>
         <h3> Spot Your Music Taste: Visualizing Spotify’s Top Tracks </h3>
+        <p><b>This demo is personalized to your own music tastes! Please log in to your Spotify account to load all visualizations. </b></p> 
         <p> Between blasting “WAP” and “SICKO MODE”, we might look back upon the 2000s and cringe at 
-          the inspidity of the millenials. From “Oops...I did it again?” to “Bye bye bye”, the songs 
+          the sappiness of the millenials. From “Oops...I did it again?” to “Bye bye bye”, the songs 
           from the beginning of the century seem starkly different from those of today. At first 
           glance (or listen?), our generations’ rap tracks, electronic dance music, and pop ballads 
-          seem “innovative” and modern. The Backstreet Boys, Britney Spears, and Destiny’s Child, 
+          seem innovative and modern. The Backstreet Boys, Britney Spears, and Destiny’s Child, 
           though evoking nostalgia, are like ancient tunes from an old jukebox in comparison. 
           Our group sought to settle the question: Are our generations' music taste different from 
           those tuning in at the turn of the century? Has popular music evolved since the 2000s? 
@@ -77,20 +78,22 @@ class App extends React.Component {
           Check out the visualization below:
         </p>
         <LineChartComponent spotifyWebApi={this.spotifyWebApi} />
+        <p> Not satisfied with simply the average dimension value and curious about the range instead? Explore this change in the second dropdown menu!
+        </p>
         <p> While it might be disappointing to know that we are playing a similar mix of acoustic, danceable, 
         energetic, and instrumental tunes through our AirPods as our parents did in their Toyota Camry radio, 
         perhaps this is a silver lining. If music tastes are consistent across generations, you might just be 
-        able to get everyone from your avuncular relatives and your kindergarten-age cousins jamming out to 
+        able to get everyone from your avuncular relatives to your kindergarten-age cousins jamming out to 
         today’s top tracks. Try it (post-COVID) at the next family gathering!
         </p>
         <p> After these findings, our group wondered: are music tastes the same across countries as well? 
           To investigate, we pulled from Spotify the current top 50 songs across 5 countries: United States, 
           France, Mexico, Japan, and South Korea. From K-pop to reggaeton, the multi-lingual music at the 
-          reviously global-scale are now plotted according to country:
+          previously global-scale are now plotted according to country:
         </p>
         <BoxplotComponent spotifyWebApi={this.spotifyWebApi} />
         <p> Flipping through the different audio features, we noted some interesting differences. Japan 
-          and Korea do not seem to appreciate “speechy” music: songs with a preponderance of spoken words. 
+          and South Korea do not seem to appreciate “speechy” music: songs with a preponderance of spoken words. 
           Does that make it tough for a budding rap artist to make their big break there? Try it out and let 
           us know! South Korea seems to have the most energetic and lively music scene, while France has the 
           most danceable (based on median values). Mexico seems to prefer major key (high valence) music 
