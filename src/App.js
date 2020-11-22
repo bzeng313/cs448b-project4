@@ -45,6 +45,9 @@ class App extends React.Component {
         <NavBar logged_in={this.logged_in}/>
         <h3> Spot Your Music Taste: Visualizing Spotify’s Top Tracks </h3>
         <p><b>This demo is personalized to your own music tastes! Please log in to your Spotify account to load all visualizations. </b></p> 
+
+        <blockquote> Last time, I asked: What does mathematics mean to you? And some people answered: The manipulation of numbers, the manipulation of structures. And if I had asked what music means to you, would you have answered: The manipulation of notes? - Serge Lang
+        </blockquote>
         <p> Between blasting “WAP” and “SICKO MODE”, we might look back upon the 2000s and cringe at 
           the sappiness of the millenials. From “Oops...I did it again?” to “Bye bye bye”, the songs 
           from the beginning of the century seem starkly different from those of today. At first 
